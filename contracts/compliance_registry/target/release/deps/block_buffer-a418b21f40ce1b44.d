@@ -1,0 +1,8 @@
+D:\Sanket\Stellar\June-Challange\stellar-compliance-dapp\contracts\compliance_registry\target\release\deps\block_buffer-a418b21f40ce1b44.d: C:\Users\SANKET\.cargo\registry\src\index.crates.io-1949cf8c6b5b557f\block-buffer-0.10.4\src\lib.rs C:\Users\SANKET\.cargo\registry\src\index.crates.io-1949cf8c6b5b557f\block-buffer-0.10.4\src\sealed.rs
+
+D:\Sanket\Stellar\June-Challange\stellar-compliance-dapp\contracts\compliance_registry\target\release\deps\libblock_buffer-a418b21f40ce1b44.rlib: C:\Users\SANKET\.cargo\registry\src\index.crates.io-1949cf8c6b5b557f\block-buffer-0.10.4\src\lib.rs C:\Users\SANKET\.cargo\registry\src\index.crates.io-1949cf8c6b5b557f\block-buffer-0.10.4\src\sealed.rs
+
+D:\Sanket\Stellar\June-Challange\stellar-compliance-dapp\contracts\compliance_registry\target\release\deps\libblock_buffer-a418b21f40ce1b44.rmeta: C:\Users\SANKET\.cargo\registry\src\index.crates.io-1949cf8c6b5b557f\block-buffer-0.10.4\src\lib.rs C:\Users\SANKET\.cargo\registry\src\index.crates.io-1949cf8c6b5b557f\block-buffer-0.10.4\src\sealed.rs
+
+C:\Users\SANKET\.cargo\registry\src\index.crates.io-1949cf8c6b5b557f\block-buffer-0.10.4\src\lib.rs:
+C:\Users\SANKET\.cargo\registry\src\index.crates.io-1949cf8c6b5b557f\block-buffer-0.10.4\src\sealed.rs:

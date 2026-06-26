@@ -1,0 +1,10 @@
+D:\Sanket\Stellar\June-Challange\stellar-compliance-dapp\contracts\compliance_registry\target\release\deps\soroban_spec_rust-2480e7f82e9cafd7.d: C:\Users\SANKET\.cargo\registry\src\index.crates.io-1949cf8c6b5b557f\soroban-spec-rust-26.1.0\src\lib.rs C:\Users\SANKET\.cargo\registry\src\index.crates.io-1949cf8c6b5b557f\soroban-spec-rust-26.1.0\src\syn_ext.rs C:\Users\SANKET\.cargo\registry\src\index.crates.io-1949cf8c6b5b557f\soroban-spec-rust-26.1.0\src\trait.rs C:\Users\SANKET\.cargo\registry\src\index.crates.io-1949cf8c6b5b557f\soroban-spec-rust-26.1.0\src\types.rs
+
+D:\Sanket\Stellar\June-Challange\stellar-compliance-dapp\contracts\compliance_registry\target\release\deps\libsoroban_spec_rust-2480e7f82e9cafd7.rlib: C:\Users\SANKET\.cargo\registry\src\index.crates.io-1949cf8c6b5b557f\soroban-spec-rust-26.1.0\src\lib.rs C:\Users\SANKET\.cargo\registry\src\index.crates.io-1949cf8c6b5b557f\soroban-spec-rust-26.1.0\src\syn_ext.rs C:\Users\SANKET\.cargo\registry\src\index.crates.io-1949cf8c6b5b557f\soroban-spec-rust-26.1.0\src\trait.rs C:\Users\SANKET\.cargo\registry\src\index.crates.io-1949cf8c6b5b557f\soroban-spec-rust-26.1.0\src\types.rs
+
+D:\Sanket\Stellar\June-Challange\stellar-compliance-dapp\contracts\compliance_registry\target\release\deps\libsoroban_spec_rust-2480e7f82e9cafd7.rmeta: C:\Users\SANKET\.cargo\registry\src\index.crates.io-1949cf8c6b5b557f\soroban-spec-rust-26.1.0\src\lib.rs C:\Users\SANKET\.cargo\registry\src\index.crates.io-1949cf8c6b5b557f\soroban-spec-rust-26.1.0\src\syn_ext.rs C:\Users\SANKET\.cargo\registry\src\index.crates.io-1949cf8c6b5b557f\soroban-spec-rust-26.1.0\src\trait.rs C:\Users\SANKET\.cargo\registry\src\index.crates.io-1949cf8c6b5b557f\soroban-spec-rust-26.1.0\src\types.rs
+
+C:\Users\SANKET\.cargo\registry\src\index.crates.io-1949cf8c6b5b557f\soroban-spec-rust-26.1.0\src\lib.rs:
+C:\Users\SANKET\.cargo\registry\src\index.crates.io-1949cf8c6b5b557f\soroban-spec-rust-26.1.0\src\syn_ext.rs:
+C:\Users\SANKET\.cargo\registry\src\index.crates.io-1949cf8c6b5b557f\soroban-spec-rust-26.1.0\src\trait.rs:
+C:\Users\SANKET\.cargo\registry\src\index.crates.io-1949cf8c6b5b557f\soroban-spec-rust-26.1.0\src\types.rs:
