@@ -7,10 +7,9 @@ import { scValToNative, xdr } from "@stellar/stellar-sdk";
 
 const STELLAR_EXPERT_BASE = "https://stellar.expert/explorer/testnet";
 
-// Only two real contracts — no exporter contract exists
 const WATCHED_CONTRACTS = [
-  { id: CONTRACTS.complianceRegistry, label: "Compliance Registry" },
-  { id: CONTRACTS.shipmentApproval,   label: "Shipment Approval" },
+  { id: CONTRACTS.complianceRegistry, label: "Evidence Registry" },
+  { id: CONTRACTS.shipmentApproval,   label: "Court Approval" },
 ];
 
 interface TxEntry {
@@ -56,10 +55,7 @@ function errMsg(err: unknown): string {
   try { return JSON.stringify(err); } catch { return String(err); }
 }
 
-async function tryGetEvents(
-  contractId: string,
-  startLedger: number,
-): Promise<Awaited<ReturnType<typeof server.getEvents>> | null> {
+async function tryGetEvents(contractId: string, startLedger: number) {
   try {
     return await server.getEvents({
       startLedger,
@@ -69,7 +65,7 @@ async function tryGetEvents(
   } catch (err: unknown) {
     const msg = errMsg(err).toLowerCase();
     if (msg.includes("retention") || msg.includes("startledger") || msg.includes("ledger")) {
-      return null; // retry with smaller window
+      return null;
     }
     throw err;
   }
@@ -81,10 +77,8 @@ async function fetchEventsForContract(
   caseId: string,
 ): Promise<TxEntry[]> {
   const latestLedger = await server.getLatestLedger();
-
-  // Try progressively smaller lookback windows until RPC accepts
   const LOOKBACKS = [4000, 2000, 720, 120];
-  let response: Awaited<ReturnType<typeof server.getEvents>> | null = null;
+  let response = null;
 
   for (const lookback of LOOKBACKS) {
     const startLedger = Math.max(1, latestLedger.sequence - lookback);
@@ -95,21 +89,15 @@ async function fetchEventsForContract(
   if (!response?.events?.length) return [];
 
   const entries: TxEntry[] = [];
-
   for (const event of response.events) {
     const topics = event.topic ?? [];
     const fnName = topics.length > 0 ? safeScValToString(topics[0]) : "invoke";
-
-    // Only include events that mention this caseId in topics or value
     const allTopicStrings = topics.map(safeScValToString).join(" ");
     let valueStr = "";
     try { valueStr = safeScValToString(event.value); } catch { /* ignore */ }
-
     if (!allTopicStrings.includes(caseId) && !valueStr.includes(caseId)) continue;
 
-    const closeTime: string =
-      (event as any).ledgerClosedAt ?? new Date().toISOString();
-
+    const closeTime: string = (event as any).ledgerClosedAt ?? new Date().toISOString();
     entries.push({
       hash: event.txHash,
       contract: label,
@@ -122,6 +110,41 @@ async function fetchEventsForContract(
   }
 
   return entries;
+}
+
+function TxHashLink({ hash }: { hash: string }) {
+  return (
+    <a
+      href={`${STELLAR_EXPERT_BASE}/tx/${hash}`}
+      target="_blank"
+      rel="noopener noreferrer"
+      style={{
+        color: "var(--accent)", textDecoration: "none",
+        display: "inline-flex", alignItems: "center", gap: 4,
+        fontFamily: "'IBM Plex Mono', monospace", fontSize: 12,
+      }}
+    >
+      {shortHash(hash)}
+      <svg width="9" height="9" viewBox="0 0 24 24" fill="none"
+        stroke="currentColor" strokeWidth="2.2" strokeLinecap="round" style={{ opacity: 0.6 }}>
+        <path d="M10 6H6a2 2 0 00-2 2v10a2 2 0 002 2h10a2 2 0 002-2v-4"/>
+        <path d="M14 4h6v6"/><path d="M20 4L10 14"/>
+      </svg>
+    </a>
+  );
+}
+
+function ContractBadge({ label }: { label: string }) {
+  return (
+    <span style={{
+      fontSize: 10.5, fontFamily: "'Plus Jakarta Sans', sans-serif",
+      padding: "2px 7px", borderRadius: 4,
+      background: "var(--accent-light)", color: "var(--accent)",
+      border: "1px solid #bfdbfe", fontWeight: 600, whiteSpace: "nowrap",
+    }}>
+      {label}
+    </span>
+  );
 }
 
 interface Props {
@@ -139,8 +162,7 @@ export default function TransactionHistory({ caseId, station, refreshKey }: Prop
 
   const load = useCallback(async () => {
     if (!caseId) { setEntries([]); return; }
-    setLoading(true);
-    setErrors([]);
+    setLoading(true); setErrors([]);
 
     const newErrors: string[] = [];
     const allEntries: TxEntry[] = [];
@@ -161,8 +183,7 @@ export default function TransactionHistory({ caseId, station, refreshKey }: Prop
     const deduped = sorted.filter(e => {
       const key = `${e.hash}:${e.contractId}`;
       if (seen.has(key)) return false;
-      seen.add(key);
-      return true;
+      seen.add(key); return true;
     });
 
     setEntries(deduped);
@@ -173,7 +194,6 @@ export default function TransactionHistory({ caseId, station, refreshKey }: Prop
 
   useEffect(() => { load(); }, [load, refreshKey]);
 
-  // Auto-poll every 8s while a case is selected
   useEffect(() => {
     if (timerRef.current) clearInterval(timerRef.current);
     if (!caseId) return;
@@ -190,7 +210,7 @@ export default function TransactionHistory({ caseId, station, refreshKey }: Prop
 
   return (
     <div style={{
-      margin: "0 32px 32px",
+      margin: "0 24px 24px",
       background: "var(--surface)",
       border: "1px solid var(--border)",
       borderRadius: 10,
@@ -199,39 +219,38 @@ export default function TransactionHistory({ caseId, station, refreshKey }: Prop
       {/* Header */}
       <div style={{
         display: "flex", alignItems: "center", justifyContent: "space-between",
-        padding: "13px 18px",
+        padding: "11px 16px",
         borderBottom: "1px solid var(--border)",
         background: "var(--surface-2)",
+        gap: 8, flexWrap: "wrap",
       }}>
-        <div style={{ display: "flex", alignItems: "center", gap: 10 }}>
+        <div style={{ display: "flex", alignItems: "center", gap: 8, flexWrap: "wrap", minWidth: 0 }}>
           <span style={{
             fontSize: 10, fontWeight: 700, letterSpacing: "0.1em",
             textTransform: "uppercase", color: "var(--muted)",
-            fontFamily: "'Inter', sans-serif",
+            fontFamily: "'Plus Jakarta Sans', sans-serif", whiteSpace: "nowrap",
           }}>
             On-chain activity
           </span>
+          <ContractBadge label={stationLabel} />
           <span style={{
-            fontSize: 10, padding: "2px 7px", borderRadius: 4,
-            background: "var(--accent-light)", color: "var(--accent)",
-            border: "1px solid #bfdbfe", fontWeight: 600,
-            fontFamily: "'Inter', sans-serif",
+            fontFamily: "'IBM Plex Mono', monospace", fontSize: 10,
+            color: "var(--muted)", overflow: "hidden", textOverflow: "ellipsis",
+            maxWidth: 140, whiteSpace: "nowrap",
           }}>
-            {stationLabel}
-          </span>
-          <span style={{ fontFamily: "'IBM Plex Mono', monospace", fontSize: 10, color: "var(--muted)" }}>
             {caseId}
           </span>
         </div>
-        <div style={{ display: "flex", alignItems: "center", gap: 10 }}>
+        <div style={{ display: "flex", alignItems: "center", gap: 8, flex: "0 0 auto" }}>
           {lastUpdated && !loading && (
-            <span style={{ fontSize: 10, color: "var(--dim)", fontFamily: "'Inter', sans-serif" }}>
-              Updated {relativeTime(lastUpdated.toISOString())}
+            <span style={{ fontSize: 10, color: "var(--dim)", fontFamily: "'Plus Jakarta Sans', sans-serif", whiteSpace: "nowrap" }}>
+              {relativeTime(lastUpdated.toISOString())}
             </span>
           )}
           {loading && (
-            <span style={{ fontSize: 10, color: "var(--accent)", fontFamily: "'Inter', sans-serif" }}>
-              Scanning…
+            <span style={{ display: "flex", alignItems: "center", gap: 4, fontSize: 10, color: "var(--accent)" }}>
+              <span className="spinner dark" style={{ width: 10, height: 10, borderWidth: 1.5 }} />
+              Scanning
             </span>
           )}
           <button className="refresh-btn" onClick={load} disabled={loading}>
@@ -240,145 +259,132 @@ export default function TransactionHistory({ caseId, station, refreshKey }: Prop
         </div>
       </div>
 
-      {/* Per-contract errors */}
+      {/* Errors */}
       {errors.length > 0 && (
-        <div style={{
-          padding: "8px 18px", fontSize: 11,
-          color: "var(--rejected)", background: "var(--rejected-bg)",
-          borderBottom: "1px solid var(--rejected-border)",
-          fontFamily: "'Inter', sans-serif",
-          display: "flex", flexDirection: "column", gap: 2,
-        }}>
-          {errors.map((e, i) => <span key={i}>⚠ {e}</span>)}
+        <div style={{ padding: "8px 14px" }}>
+          <div className="error-banner">
+            <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round">
+              <circle cx="12" cy="12" r="10"/><line x1="12" y1="8" x2="12" y2="12"/><line x1="12" y1="16" x2="12.01" y2="16"/>
+            </svg>
+            <div style={{ flex: 1 }}>
+              {errors.map((e, i) => <div key={i}>{e}</div>)}
+            </div>
+            <button className="error-banner-retry" onClick={load}>Retry</button>
+          </div>
         </div>
       )}
 
-      {/* Loading */}
+      {/* Loading skeleton */}
       {loading && entries.length === 0 && (
-        <div style={{
-          padding: "28px 18px", fontSize: 12, color: "var(--muted)",
-          textAlign: "center", fontFamily: "'Inter', sans-serif",
-        }}>
-          Scanning Soroban events for{" "}
-          <span style={{ fontFamily: "'IBM Plex Mono', monospace" }}>{caseId}</span>…
+        <div style={{ padding: "16px 14px", display: "flex", flexDirection: "column", gap: 10 }}>
+          {[1,2].map(i => (
+            <div key={i} className="skeleton" style={{ height: 36, borderRadius: 6 }} />
+          ))}
         </div>
       )}
 
       {/* Empty state */}
       {!loading && entries.length === 0 && errors.length === 0 && (
-        <div style={{
-          padding: "28px 18px", fontSize: 12, color: "var(--muted)",
-          textAlign: "center", fontFamily: "'Inter', sans-serif",
-        }}>
-          No on-chain events found for{" "}
-          <span style={{ fontFamily: "'IBM Plex Mono', monospace" }}>{caseId}</span>.
-          <span style={{ fontSize: 11, color: "var(--dim)", marginTop: 4, display: "block" }}>
-            Events appear after a successful contract invocation referencing this case ID.
-          </span>
+        <div className="empty-state" style={{ padding: "28px 20px" }}>
+          <p className="empty-state-text" style={{ fontSize: 12 }}>
+            No on-chain events found for <code style={{ fontFamily: "'IBM Plex Mono', monospace" }}>{caseId}</code>.
+          </p>
+          <p className="empty-state-sub">Events appear after a successful contract invocation.</p>
         </div>
       )}
 
-      {/* Table */}
+      {/* Desktop table */}
       {entries.length > 0 && (
-        <div style={{ overflowX: "auto" }}>
-          <table style={{
-            width: "100%", borderCollapse: "collapse",
-            fontSize: 12, fontFamily: "'IBM Plex Mono', monospace",
-          }}>
-            <thead>
-              <tr style={{ background: "var(--surface-2)" }}>
-                {["Tx Hash", "Contract", "Function", "Topics", "Ledger", "Time"].map(h => (
-                  <th key={h} style={{
-                    padding: "8px 14px", textAlign: "left", fontWeight: 700,
-                    fontSize: 10, letterSpacing: "0.08em", textTransform: "uppercase",
-                    color: "var(--muted)", borderBottom: "1px solid var(--border)",
-                    fontFamily: "'Inter', sans-serif", whiteSpace: "nowrap",
-                  }}>{h}</th>
-                ))}
-              </tr>
-            </thead>
-            <tbody>
-              {entries.map((e, i) => (
-                <tr
-                  key={`${e.hash}:${e.contractId}:${i}`}
-                  style={{
-                    borderBottom: i < entries.length - 1 ? "1px solid var(--border)" : "none",
-                    transition: "background 0.1s",
-                  }}
-                  onMouseEnter={ev => (ev.currentTarget.style.background = "var(--accent-light)")}
-                  onMouseLeave={ev => (ev.currentTarget.style.background = "")}
-                >
-                  {/* Tx hash */}
-                  <td style={{ padding: "10px 14px" }}>
-                    <a
-                      href={`${STELLAR_EXPERT_BASE}/tx/${e.hash}`}
-                      target="_blank"
-                      rel="noopener noreferrer"
-                      style={{
-                        color: "var(--accent)", textDecoration: "none",
-                        display: "inline-flex", alignItems: "center", gap: 4,
-                      }}
-                      onMouseEnter={ev => ((ev.currentTarget as HTMLElement).style.textDecoration = "underline")}
-                      onMouseLeave={ev => ((ev.currentTarget as HTMLElement).style.textDecoration = "none")}
-                    >
-                      {shortHash(e.hash)}
-                      <svg width="9" height="9" viewBox="0 0 24 24" fill="none"
-                        stroke="currentColor" strokeWidth="2.2" strokeLinecap="round"
-                        style={{ opacity: 0.6 }}>
-                        <path d="M10 6H6a2 2 0 00-2 2v10a2 2 0 002 2h10a2 2 0 002-2v-4"/>
-                        <path d="M14 4h6v6"/><path d="M20 4L10 14"/>
-                      </svg>
-                    </a>
-                  </td>
-
-                  {/* Contract badge */}
-                  <td style={{ padding: "10px 14px" }}>
-                    <span style={{
-                      fontSize: 11, fontFamily: "'Inter', sans-serif",
-                      padding: "2px 7px", borderRadius: 4,
-                      background: "var(--accent-light)", color: "var(--accent)",
-                      border: "1px solid #bfdbfe", fontWeight: 600, whiteSpace: "nowrap",
-                    }}>
-                      {e.contract}
-                    </span>
-                  </td>
-
-                  {/* Function */}
-                  <td style={{ padding: "10px 14px", color: "var(--text)" }}>
-                    {e.functionName}
-                  </td>
-
-                  {/* Topics (skip topic[0] = fn name) */}
-                  <td style={{ padding: "10px 14px", maxWidth: 220 }}>
-                    <div style={{ display: "flex", flexWrap: "wrap", gap: 4 }}>
-                      {e.topics.slice(1).map((t, ti) => (
-                        <span key={ti} style={{
-                          fontSize: 10, padding: "1px 6px", borderRadius: 3,
-                          background: "var(--surface-2)", color: "var(--text-2)",
-                          border: "1px solid var(--border)", whiteSpace: "nowrap",
-                          maxWidth: 130, overflow: "hidden", textOverflow: "ellipsis",
-                        }} title={t}>{t}</span>
-                      ))}
-                    </div>
-                  </td>
-
-                  {/* Ledger */}
-                  <td style={{ padding: "10px 14px", color: "var(--muted)", fontSize: 11 }}>
-                    #{e.ledger}
-                  </td>
-
-                  {/* Time */}
-                  <td style={{ padding: "10px 14px", color: "var(--muted)", whiteSpace: "nowrap" }}>
-                    {relativeTime(e.createdAt)}
-                    <span style={{ fontSize: 9.5, display: "block", opacity: 0.65 }}>
-                      {new Date(e.createdAt).toLocaleTimeString()}
-                    </span>
-                  </td>
+        <>
+          <div style={{ overflowX: "auto" }}>
+            <table className="tx-table">
+              <thead>
+                <tr>
+                  {["Tx Hash", "Contract", "Function", "Topics", "Ledger", "Time"].map(h => (
+                    <th key={h}>{h}</th>
+                  ))}
                 </tr>
-              ))}
-            </tbody>
-          </table>
-        </div>
+              </thead>
+              <tbody>
+                {entries.map((e, i) => (
+                  <tr
+                    key={`${e.hash}:${e.contractId}:${i}`}
+                    onMouseEnter={ev => (ev.currentTarget.style.background = "var(--accent-light)")}
+                    onMouseLeave={ev => (ev.currentTarget.style.background = "")}
+                  >
+                    <td><TxHashLink hash={e.hash} /></td>
+                    <td><ContractBadge label={e.contract} /></td>
+                    <td style={{ color: "var(--text)", fontFamily: "'IBM Plex Mono', monospace", fontSize: 11.5 }}>
+                      {e.functionName}
+                    </td>
+                    <td style={{ maxWidth: 200 }}>
+                      <div style={{ display: "flex", flexWrap: "wrap", gap: 4 }}>
+                        {e.topics.slice(1).map((t, ti) => (
+                          <span key={ti} style={{
+                            fontSize: 10, padding: "1px 6px", borderRadius: 3,
+                            background: "var(--surface-2)", color: "var(--text-2)",
+                            border: "1px solid var(--border)", whiteSpace: "nowrap",
+                            maxWidth: 120, overflow: "hidden", textOverflow: "ellipsis",
+                            fontFamily: "'IBM Plex Mono', monospace",
+                          }} title={t}>{t}</span>
+                        ))}
+                      </div>
+                    </td>
+                    <td style={{ color: "var(--muted)", fontSize: 11, fontFamily: "'IBM Plex Mono', monospace" }}>
+                      #{e.ledger}
+                    </td>
+                    <td style={{ color: "var(--muted)", whiteSpace: "nowrap", fontSize: 11 }}>
+                      {relativeTime(e.createdAt)}
+                    </td>
+                  </tr>
+                ))}
+              </tbody>
+            </table>
+          </div>
+
+          {/* Mobile card view */}
+          <div>
+            {entries.map((e, i) => (
+              <div key={`m-${e.hash}:${i}`} className="tx-card">
+                <div className="tx-card-row">
+                  <TxHashLink hash={e.hash} />
+                  <ContractBadge label={e.contract} />
+                </div>
+                <div className="tx-card-row" style={{ marginTop: 6 }}>
+                  <div>
+                    <div className="tx-card-label">Function</div>
+                    <span style={{ fontFamily: "'IBM Plex Mono', monospace", fontSize: 11.5, color: "var(--text)" }}>
+                      {e.functionName}
+                    </span>
+                  </div>
+                  <div style={{ textAlign: "right" }}>
+                    <div className="tx-card-label">Ledger</div>
+                    <span style={{ fontFamily: "'IBM Plex Mono', monospace", fontSize: 11, color: "var(--muted)" }}>
+                      #{e.ledger}
+                    </span>
+                  </div>
+                </div>
+                <div style={{ marginTop: 5 }}>
+                  <div className="tx-card-label" style={{ marginBottom: 3 }}>Topics</div>
+                  <div style={{ display: "flex", flexWrap: "wrap", gap: 4 }}>
+                    {e.topics.slice(1).map((t, ti) => (
+                      <span key={ti} style={{
+                        fontSize: 10, padding: "1px 6px", borderRadius: 3,
+                        background: "var(--surface-2)", color: "var(--text-2)",
+                        border: "1px solid var(--border)",
+                        fontFamily: "'IBM Plex Mono', monospace",
+                        maxWidth: "100%", overflow: "hidden", textOverflow: "ellipsis",
+                      }} title={t}>{t}</span>
+                    ))}
+                  </div>
+                </div>
+                <div style={{ marginTop: 5, fontSize: 10.5, color: "var(--dim)" }}>
+                  {relativeTime(e.createdAt)}
+                </div>
+              </div>
+            ))}
+          </div>
+        </>
       )}
     </div>
   );

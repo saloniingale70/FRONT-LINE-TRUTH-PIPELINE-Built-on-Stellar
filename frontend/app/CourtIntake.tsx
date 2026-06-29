@@ -10,12 +10,12 @@ import { server, NETWORK_PASSPHRASE } from "./stellar";
 type Stage = "idle" | "building" | "signing" | "submitting" | "done" | "error";
 
 const STAGE_LABELS: Record<Stage, string> = {
-  idle: "Submit for court intake",
-  building: "Preparing submission…",
-  signing: "Awaiting signature…",
+  idle:       "Submit for court intake",
+  building:   "Preparing submission…",
+  signing:    "Awaiting wallet signature…",
   submitting: "Submitting to network…",
-  done: "Submitted",
-  error: "Retry submission",
+  done:       "Submitted",
+  error:      "Retry submission",
 };
 
 const DOT_STATE: Record<Stage, [string, string, string]> = {
@@ -26,6 +26,27 @@ const DOT_STATE: Record<Stage, [string, string, string]> = {
   done:       ["done", "done", "done"],
   error:      ["", "", ""],
 };
+
+const STEP_HINTS: Record<Stage, string> = {
+  idle:       "",
+  building:   "Simulating transaction against contract…",
+  signing:    "Open Freighter and approve the transaction.",
+  submitting: "Waiting for on-chain confirmation…",
+  done:       "",
+  error:      "",
+};
+
+function friendlyError(raw: string): string {
+  if (raw.includes("Simulation failed"))
+    return "Contract simulation failed — ensure the case exists and has a pending status.";
+  if (raw.includes("Signing rejected") || raw.includes("User declined"))
+    return "Transaction was cancelled in your wallet.";
+  if (raw.includes("INSUFFICIENT_FUNDS") || raw.includes("insufficient balance"))
+    return "Insufficient testnet XLM. Fund your wallet at friendbot.stellar.org.";
+  if (raw.includes("NOT_FOUND") || raw.includes("NOT_CONFIRMED"))
+    return "Transaction was submitted but did not confirm. Try again in a moment.";
+  return raw;
+}
 
 export default function CourtIntake({
   caseId,
@@ -49,16 +70,14 @@ export default function CourtIntake({
 
   async function submitForIntake() {
     if (!publicKey || !caseId) return;
-    setErrorMsg("");
-    setAdmissible(null);
+    setErrorMsg(""); setAdmissible(null);
 
     try {
       setStage("building");
       const account = await server.getAccount(publicKey);
 
       const tx = new TransactionBuilder(account, {
-        fee: BASE_FEE,
-        networkPassphrase: NETWORK_PASSPHRASE,
+        fee: BASE_FEE, networkPassphrase: NETWORK_PASSPHRASE,
       })
         .addOperation(
           Operation.invokeContractFunction({
@@ -85,7 +104,7 @@ export default function CourtIntake({
         address: publicKey,
       });
       if (signResult.error)
-        throw new Error(signResult.error.message ?? "Signing was rejected.");
+        throw new Error(signResult.error.message ?? "Signing rejected.");
 
       const signedTx = TransactionBuilder.fromXDR(signResult.signedTxXdr, NETWORK_PASSPHRASE);
 
@@ -104,11 +123,10 @@ export default function CourtIntake({
       if (txResult.status !== "SUCCESS")
         throw new Error(`Transaction did not succeed: ${txResult.status}`);
 
-      // Check final compliance status
+      // Check final compliance
       const accountForQuery = await server.getAccount(publicKey);
       const checkTx = new TransactionBuilder(accountForQuery, {
-        fee: BASE_FEE,
-        networkPassphrase: NETWORK_PASSPHRASE,
+        fee: BASE_FEE, networkPassphrase: NETWORK_PASSPHRASE,
       })
         .addOperation(
           Operation.invokeContractFunction({
@@ -131,26 +149,18 @@ export default function CourtIntake({
       setStage("done");
       onResolved?.();
     } catch (err: any) {
-      setErrorMsg(err.message ?? "Something went wrong.");
+      setErrorMsg(friendlyError(err.message ?? "Something went wrong."));
       setStage("error");
     }
   }
 
   if (!caseId) {
     return (
-      <div style={{
-        flex: 1, display: "flex", flexDirection: "column",
-        alignItems: "center", justifyContent: "center",
-        gap: 12, padding: "60px 40px",
-      }}>
-        <svg width="40" height="40" viewBox="0 0 24 24" fill="none"
-          stroke="currentColor" strokeWidth="1.2" strokeLinecap="round"
-          style={{ opacity: 0.25, color: "var(--accent)" }}>
+      <div className="empty-state" style={{ flex: 1 }}>
+        <svg className="empty-state-icon" width="36" height="36" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.3" strokeLinecap="round">
           <path d="M12 3l8 4v5c0 5-3.5 8-8 9-4.5-1-8-4-8-9V7l8-4z"/>
         </svg>
-        <p style={{ fontSize: 13, textAlign: "center", maxWidth: 220, color: "var(--muted)" }}>
-          Select a case that has passed the verification desk to submit it for court intake.
-        </p>
+        <p className="empty-state-text">Select a verified case to submit it for court intake.</p>
       </div>
     );
   }
@@ -167,42 +177,59 @@ export default function CourtIntake({
     :                  "Not admissible";
 
   return (
-    <div style={{ flex: 1, padding: 32, display: "flex", flexDirection: "column", gap: 24 }}>
+    <div style={{ flex: 1, padding: "0 24px 24px", display: "flex", flexDirection: "column", gap: 20 }}>
       <div style={{
-        background: "var(--card)",
+        background: "var(--surface)",
         border: "1px solid var(--border-strong)",
         borderRadius: 12,
         overflow: "hidden",
       }}>
+        {/* Card header */}
         <div style={{
-          padding: "20px 24px",
+          padding: "18px 22px",
           borderBottom: "1px solid var(--border)",
           display: "flex", alignItems: "flex-start",
-          justifyContent: "space-between", gap: 16,
+          justifyContent: "space-between", gap: 12,
         }}>
-          <div>
+          <div style={{ minWidth: 0 }}>
             <p style={{
               fontSize: 10, fontWeight: 600, letterSpacing: "0.12em",
-              textTransform: "uppercase", color: "var(--muted)", marginBottom: 6,
+              textTransform: "uppercase", color: "var(--muted)", marginBottom: 5,
             }}>
               Case file
             </p>
-            <p style={{ fontFamily: "'IBM Plex Mono', monospace", fontSize: 22, fontWeight: 500 }}>
+            <p style={{
+              fontFamily: "'IBM Plex Mono', monospace", fontSize: 18, fontWeight: 500,
+              wordBreak: "break-all",
+            }}>
               {caseId}
             </p>
           </div>
           <span className={stampClass}>{stampText}</span>
         </div>
 
-        <div style={{ padding: "20px 24px", display: "flex", flexDirection: "column", gap: 12 }}>
+        {/* Card body */}
+        <div style={{ padding: "18px 22px", display: "flex", flexDirection: "column", gap: 10 }}>
           <button
             className="primary-btn"
             onClick={submitForIntake}
             disabled={busy || !publicKey || stage === "done"}
           >
-            {!publicKey ? "Connect wallet to submit" : STAGE_LABELS[stage]}
+            {busy
+              ? <><span className="spinner" />{STAGE_LABELS[stage]}</>
+              : !publicKey
+              ? "Connect wallet to submit"
+              : STAGE_LABELS[stage]}
           </button>
 
+          {/* Stage hint */}
+          {busy && STEP_HINTS[stage] && (
+            <p style={{ fontSize: 11.5, color: "var(--muted)", textAlign: "center", margin: 0 }}>
+              {STEP_HINTS[stage]}
+            </p>
+          )}
+
+          {/* Progress dots */}
           {busy && (
             <div className="step-dots">
               {dots.map((s, i) => (
@@ -211,19 +238,32 @@ export default function CourtIntake({
             </div>
           )}
 
+          {/* Error state */}
           {stage === "error" && (
-            <p className="status-line err">{errorMsg}</p>
+            <div className="error-banner">
+              <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round">
+                <circle cx="12" cy="12" r="10"/><line x1="12" y1="8" x2="12" y2="12"/><line x1="12" y1="16" x2="12.01" y2="16"/>
+              </svg>
+              <span style={{ flex: 1 }}>{errorMsg}</span>
+            </div>
           )}
 
+          {/* Success state */}
           {stage === "done" && (
             <p className="status-line ok">
-              Custody status:{" "}
-              <span style={{ color: admitted ? "var(--compliant)" : "var(--rejected)" }}>
+              Admissibility:{" "}
+              <strong style={{ color: admitted ? "var(--compliant)" : "var(--rejected)" }}>
                 {admissible}
-              </span>
+              </strong>
               {admitted
                 ? " — accepted into the case record."
                 : " — rejected, custody chain incomplete."}
+            </p>
+          )}
+
+          {!publicKey && (
+            <p className="status-line warn" style={{ marginTop: 0 }}>
+              Connect your Freighter wallet to submit.
             </p>
           )}
         </div>

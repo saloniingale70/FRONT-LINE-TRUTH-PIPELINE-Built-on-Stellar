@@ -3,7 +3,7 @@ import "./globals.css";
 import { FreighterProvider } from "./freighter-context";
 
 export const metadata: Metadata = {
-  title: "Buyer dashboard",
+  title: "Frontline Truth Pipeline",
   description: "Trade compliance console",
 };
 
