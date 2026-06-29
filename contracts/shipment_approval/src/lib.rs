@@ -1,38 +1,119 @@
+
 #![no_std]
+use soroban_sdk::{
+    contract, contractimpl, contracttype, symbol_short,
+    Address, Env, Symbol,
+};
 
-use soroban_sdk::{contract, contractimpl, contractclient, Env, Address, Symbol};
 
-#[contractclient(name = "ComplianceRegistryClient")]
-pub trait ComplianceRegistryInterface {
-    fn is_compliant(env: Env, shipment_id: Symbol) -> bool;
+#[contracttype]
+#[derive(Clone, Debug, PartialEq)]
+pub enum ComplianceStatus {
+    Pending,
+    Compliant,
+    Rejected,
 }
+
+
+#[contracttype]
+#[derive(Clone, Debug)]
+pub struct ShipmentRecord {
+    pub id: Symbol,
+    pub gst_hash: soroban_sdk::Bytes,
+    pub customs_hash: soroban_sdk::Bytes,
+    pub sustainability_hash: soroban_sdk::Bytes,
+    pub submitter: Address,
+    pub status: ComplianceStatus,
+}
+
+
+
+#[contracttype]
+pub enum DataKey {
+
+    Approved(Symbol),
+    
+    Exporter,
+}
+
+
 
 #[contract]
 pub struct ShipmentApproval;
 
 #[contractimpl]
 impl ShipmentApproval {
+ 
     pub fn approve_shipment(
         env: Env,
-        registry: Address,
-        shipment_id: Symbol,
-        exporter: Address,
-    ) -> bool {
-        let registry_client = ComplianceRegistryClient::new(&env, &registry);
-        let all_verified = registry_client.is_compliant(&shipment_id);
+        registry: Address,   
+        case_id: Symbol,   
+        exporter: Address,   
+    ) {
+        
+        let record: Option<ShipmentRecord> = env
+            .invoke_contract(
+                &registry,
+                &Symbol::new(&env, "get_shipment"),
+                soroban_sdk::vec![&env, case_id.to_val()],
+            );
 
-        if all_verified {
-            env.events().publish(
-                (Symbol::new(&env, "shipment_approved"), exporter.clone()),
-                shipment_id.clone(),
-            );
-            true
-        } else {
-            env.events().publish(
-                (Symbol::new(&env, "shipment_rejected"), exporter.clone()),
-                shipment_id.clone(),
-            );
-            false
+        let record = match record {
+            Some(r) => r,
+            None => panic!("Case not found in registry"),
+        };
+
+       
+        match record.status {
+            ComplianceStatus::Compliant => {
+                
+            }
+            ComplianceStatus::Pending => {
+                panic!("Case is still PENDING — run custody check first");
+            }
+            ComplianceStatus::Rejected => {
+                panic!("Case is REJECTED — custody chain is broken");
+            }
         }
+
+        env.storage()
+            .persistent()
+            .set(&DataKey::Approved(case_id.clone()), &true);
+
+    
+        env.storage()
+            .persistent()
+            .set(&DataKey::Exporter, &exporter);
+
+        env.events().publish(
+            (symbol_short!("approved"), case_id.clone()),
+            exporter,
+        );
+    }
+
+ 
+    pub fn is_approved(env: Env, case_id: Symbol) -> bool {
+        env.storage()
+            .persistent()
+            .get(&DataKey::Approved(case_id))
+            .unwrap_or(false)
+    }
+}
+
+
+
+#[cfg(test)]
+mod tests {
+    use super::*;
+    use soroban_sdk::{testutils::Address as _, Env};
+
+    #[test]
+    fn test_is_approved_default_false() {
+        let env = Env::default();
+        let contract_id = env.register_contract(None, ShipmentApproval);
+        let client = ShipmentApprovalClient::new(&env, &contract_id);
+
+        let id = Symbol::new(&env, "CASE001");
+        assert!(!client.is_approved(&id));
     }
 }

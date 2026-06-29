@@ -1,0 +1,1 @@
+D:\Sanket\Stellar\June-Challange\stellar-compliance-dapp\contracts\compliance_registry\target\wasm32-unknown-unknown\release\compliance_registry.wasm: D:\Sanket\Stellar\June-Challange\stellar-compliance-dapp\contracts\compliance_registry\src\lib.rs

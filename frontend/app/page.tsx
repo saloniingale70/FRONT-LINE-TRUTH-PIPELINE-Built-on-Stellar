@@ -83,9 +83,7 @@ export default function Page() {
         </div>
       </div>
 
-      <footer className="footer-attribution">
-        This is independent software, not affiliated with, sponsored, or endorsed by the Stellar Development Foundation.
-      </footer>
+     
     </div>
   );
 }

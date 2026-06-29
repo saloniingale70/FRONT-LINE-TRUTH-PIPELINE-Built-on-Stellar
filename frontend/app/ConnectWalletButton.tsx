@@ -9,10 +9,6 @@ export default function ConnectWalletButton() {
     return (
       <div style={{ display: "flex", alignItems: "center", gap: 8 }}>
         <span style={{
-          width: 7, height: 7, borderRadius: "50%",
-          background: "var(--compliant)", display: "inline-block",
-        }} />
-        <span style={{
           fontFamily: "'IBM Plex Mono', monospace", fontSize: 11.5,
           color: "var(--text-2)", background: "var(--surface-2)",
           border: "1px solid var(--border)", padding: "3px 10px", borderRadius: 5,
@@ -30,10 +26,6 @@ export default function ConnectWalletButton() {
         disabled={connecting}
         className="wallet-btn"
       >
-        <span style={{
-          width: 7, height: 7, borderRadius: "50%",
-          background: "var(--dim)", display: "inline-block",
-        }} />
         {connecting ? "Connecting…" : "Connect Freighter"}
       </button>
       {error && (
