@@ -4,7 +4,7 @@ import { FreighterProvider } from "./freighter-context";
 
 export const metadata: Metadata = {
   title: "Frontline Truth Pipeline",
-  description: "Trade compliance console",
+  description: "Case Registry, Verification & Court Intake",
 };
 
 export default function RootLayout({ children }: { children: React.ReactNode }) {
