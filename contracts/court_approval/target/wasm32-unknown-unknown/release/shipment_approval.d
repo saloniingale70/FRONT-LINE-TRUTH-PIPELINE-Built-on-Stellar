@@ -1,1 +1,0 @@
-D:\Sanket\Stellar\June-Challange\stellar-compliance-dapp\contracts\shipment_approval\target\wasm32-unknown-unknown\release\shipment_approval.wasm: D:\Sanket\Stellar\June-Challange\stellar-compliance-dapp\contracts\shipment_approval\src\lib.rs

@@ -1,8 +1,6 @@
-
-
 #![no_std]
 use soroban_sdk::{
-    contract, contractimpl, contracttype, log, symbol_short,
+    contract, contractimpl, contracttype, symbol_short,
     Address, Bytes, Env, Symbol, Vec,
 };
 
@@ -19,19 +17,14 @@ pub enum ComplianceStatus {
 #[contracttype]
 #[derive(Clone, Debug)]
 pub struct ShipmentRecord {
-    
     pub id: Symbol,
-    
     pub gst_hash: Bytes,
-   
     pub customs_hash: Bytes,
-   
     pub sustainability_hash: Bytes,
-    
     pub submitter: Address,
-    
     pub status: ComplianceStatus,
 }
+
 #[contracttype]
 pub enum DataKey {
     Shipment(Symbol),
@@ -47,13 +40,11 @@ impl ComplianceRegistry {
     pub fn submit_shipment(
         env: Env,
         id: Symbol,
-        gst_hash: Bytes,          
-        customs_hash: Bytes,      
-        sustainability_hash: Bytes, 
+        gst_hash: Bytes,
+        customs_hash: Bytes,
+        sustainability_hash: Bytes,
     ) {
-        
         let submitter = env.current_contract_address();
-      
 
         let record = ShipmentRecord {
             id: id.clone(),
@@ -64,19 +55,16 @@ impl ComplianceRegistry {
             status: ComplianceStatus::Pending,
         };
 
-        
         env.storage()
             .persistent()
             .set(&DataKey::Shipment(id.clone()), &record);
 
-        
         let mut list: Vec<Symbol> = env
             .storage()
             .persistent()
             .get(&DataKey::ShipmentList)
             .unwrap_or(Vec::new(&env));
 
-        
         let already_exists = list.iter().any(|s| s == id);
         if !already_exists {
             list.push_back(id.clone());
@@ -85,14 +73,12 @@ impl ComplianceRegistry {
                 .set(&DataKey::ShipmentList, &list);
         }
 
-        
         env.events().publish(
             (symbol_short!("submit"), id),
             record.status,
         );
     }
 
-   
     pub fn list_shipments(env: Env) -> Vec<Symbol> {
         env.storage()
             .persistent()
@@ -100,14 +86,12 @@ impl ComplianceRegistry {
             .unwrap_or(Vec::new(&env))
     }
 
-    
     pub fn get_shipment(env: Env, id: Symbol) -> Option<ShipmentRecord> {
         env.storage()
             .persistent()
             .get(&DataKey::Shipment(id))
     }
 
-   
     pub fn verify_compliance(env: Env, id: Symbol) {
         let mut record: ShipmentRecord = env
             .storage()
@@ -115,7 +99,6 @@ impl ComplianceRegistry {
             .get(&DataKey::Shipment(id.clone()))
             .unwrap_or_else(|| panic!("Case not found: {:?}", id));
 
-        
         let source_ok = !Self::is_zero_bytes(&record.gst_hash);
         let custody_ok = !Self::is_zero_bytes(&record.customs_hash);
         let witness_ok = !Self::is_zero_bytes(&record.sustainability_hash);
@@ -136,7 +119,6 @@ impl ComplianceRegistry {
         );
     }
 
-   
     pub fn reject_shipment(env: Env, id: Symbol) {
         let mut record: ShipmentRecord = env
             .storage()
@@ -156,7 +138,6 @@ impl ComplianceRegistry {
         );
     }
 
- 
     pub fn is_compliant(env: Env, id: Symbol) -> bool {
         let record: Option<ShipmentRecord> = env
             .storage()
@@ -173,7 +154,6 @@ impl ComplianceRegistry {
         if b.len() == 0 {
             return true;
         }
-        
         for i in 0..b.len() {
             if b.get(i).unwrap_or(0) != 0 {
                 return false;
@@ -244,7 +224,6 @@ mod tests {
         let h = make_hash(&env, "proof");
         let z = zero_hash(&env);
 
-        
         client.submit_shipment(&id, &h, &z, &h);
         client.verify_compliance(&id);
 
@@ -280,7 +259,7 @@ mod tests {
         let h = make_hash(&env, "x");
 
         client.submit_shipment(&id, &h, &h, &h);
-        client.submit_shipment(&id, &h, &h, &h); 
+        client.submit_shipment(&id, &h, &h, &h);
 
         assert_eq!(client.list_shipments().len(), 1);
     }
