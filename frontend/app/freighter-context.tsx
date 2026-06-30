@@ -48,8 +48,8 @@ export function FreighterProvider({ children }: { children: ReactNode }) {
       }
 
       setPublicKey(addressResult.address);
-    } catch (err: any) {
-      setError(err?.message ?? "Unknown error connecting to Freighter.");
+    } catch (err: unknown) {
+      setError(err instanceof Error ? err.message : "Unknown error connecting to Freighter.");
     } finally {
       setConnecting(false);
     }

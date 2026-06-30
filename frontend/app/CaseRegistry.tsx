@@ -76,8 +76,8 @@ export default function CaseRegistry({
         }
       }));
       setRows(statusResults);
-    } catch (err: any) {
-      setError(err.message ?? "Could not load case registry.");
+    } catch (err: unknown) {
+      setError(err instanceof Error ? err.message : "Could not load case registry.");
     } finally {
       setLoading(false);
     }

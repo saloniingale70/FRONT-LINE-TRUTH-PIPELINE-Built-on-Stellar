@@ -40,9 +40,9 @@ jest.mock("@stellar/stellar-sdk", () => {
     xdr: {
       ScVal: { scvSymbol, scvBytes, scvBool },
     },
-    scValToNative: jest.fn((val: any) => {
+    scValToNative: jest.fn((val: { type?: string; value?: unknown; b?: () => boolean }) => {
       if (val?.type === "symbol") return val.value;
-      if (val?.type === "bool")   return val.b();
+      if (val?.type === "bool" && val.b) return val.b();
       return null;
     }),
     Keypair: { random: () => ({ publicKey: () => "GFAKEKEY", secretKey: () => "SFAKEKEY" }) },
@@ -82,7 +82,7 @@ jest.mock("./stellar", () => ({
     getEvents:           jest.fn(),
   },
   NETWORK_PASSPHRASE: "Test SDF Network ; September 2015",
-  textToBytes32: jest.fn((_s: string) => new Uint8Array(32)),
+  textToBytes32: jest.fn(() => new Uint8Array(32)),
 }));
 
 jest.mock("./config", () => ({
@@ -96,6 +96,7 @@ jest.mock("./config", () => ({
 
 import { server } from "./stellar";
 import * as FreighterAPI from "@stellar/freighter-api";
+import { rpc, xdr, TransactionBuilder, scValToNative } from "@stellar/stellar-sdk";
 
 // ─── Minimal FreighterContext for tests ───────────────────────────────────────
 
@@ -146,12 +147,11 @@ const WALLET = "GDMLTCWQDICO6VG6CRC7TFM5WKMHH57HCBTZSVIDHA4CXNNVWUKTX2OJ";
 // ─── Shared transaction helpers ───────────────────────────────────────────────
 
 function setupTxSuccess() {
-  const { rpc, TransactionBuilder } = require("@stellar/stellar-sdk");
   (rpc.Api.isSimulationError as jest.Mock).mockReturnValue(false);
   (rpc.assembleTransaction as jest.Mock).mockReturnValue({
     build: jest.fn().mockReturnValue({ toXDR: () => "prepared-xdr" }),
   });
-  (TransactionBuilder.fromXDR as jest.Mock) = jest.fn().mockReturnValue({});
+  (TransactionBuilder as unknown as { fromXDR: jest.Mock }).fromXDR = jest.fn().mockReturnValue({});
 
   (server.getAccount as jest.Mock).mockResolvedValue({});
   (server.sendTransaction as jest.Mock).mockResolvedValue({
@@ -174,9 +174,8 @@ describe("CaseRegistry", () => {
     jest.clearAllMocks();
 
     // scValToNative: call 1 → list of IDs, subsequent calls → shipment with status
-    const { scValToNative } = require("@stellar/stellar-sdk");
     let callCount = 0;
-    (scValToNative as jest.Mock).mockImplementation((_val: any) => {
+    (scValToNative as jest.Mock).mockImplementation(() => {
       callCount++;
       if (callCount === 1) return ["CASE-001", "CASE-002"];
       return { status: ["Compliant"] };
@@ -386,7 +385,6 @@ describe("CourtIntake", () => {
     jest.clearAllMocks();
     setupTxSuccess();
 
-    const { rpc, xdr } = require("@stellar/stellar-sdk");
     (rpc.Api.isSimulationSuccess as jest.Mock).mockReturnValue(true);
 
     // Default: approve_shipment sim succeeds, is_compliant returns true
@@ -433,8 +431,6 @@ describe("CourtIntake", () => {
   });
 
   test("displays Not admissible when is_compliant returns false", async () => {
-    const { xdr } = require("@stellar/stellar-sdk");
-
     // mockReset clears the beforeEach queue so our false value lands first
     (server.simulateTransaction as jest.Mock).mockReset();
     (server.simulateTransaction as jest.Mock)

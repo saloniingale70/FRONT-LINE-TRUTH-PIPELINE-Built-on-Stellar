@@ -95,8 +95,8 @@ export default function FieldCaptureForm({ onSubmitted }: { onSubmitted?: () => 
       setMessage({ kind: "ok", text: `Case ${caseIdTrimmed} logged to the pipeline.` });
       setCaseId(""); setSourceProof(""); setCustodyLog(""); setWitnessAttestation("");
       onSubmitted?.();
-    } catch (err: any) {
-      const raw = err.message ?? "Could not log this case.";
+    } catch (err: unknown) {
+      const raw = err instanceof Error ? err.message : "Could not log this case.";
       // Friendlier error messages
       const msg = raw.includes("Simulation failed")
         ? "Contract simulation failed — ensure your wallet is funded on testnet."

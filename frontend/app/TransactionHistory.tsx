@@ -71,6 +71,13 @@ async function tryGetEvents(contractId: string, startLedger: number) {
   }
 }
 
+// Some RPC server responses include a ledgerClosedAt field on each event that
+// isn't part of the published SDK type, so we narrow it safely instead of
+// reaching for `any`.
+interface EventWithCloseTime {
+  ledgerClosedAt?: string;
+}
+
 async function fetchEventsForContract(
   contractId: string,
   label: string,
@@ -97,7 +104,7 @@ async function fetchEventsForContract(
     try { valueStr = safeScValToString(event.value); } catch { /* ignore */ }
     if (!allTopicStrings.includes(caseId) && !valueStr.includes(caseId)) continue;
 
-    const closeTime: string = (event as any).ledgerClosedAt ?? new Date().toISOString();
+    const closeTime: string = (event as EventWithCloseTime).ledgerClosedAt ?? new Date().toISOString();
     entries.push({
       hash: event.txHash,
       contract: label,
