@@ -2,30 +2,6 @@
 
 > A Soroban (Stellar smart contract) dApp for logging, verifying, and certifying the chain-of-custody of field evidence — from capture, through compliance verification, to court-admissible intake — fully on-chain.
 
-
-
----
-
-## Table of Contents
-
-1. [Live Demo](#live-demo)
-2. [Demo Video](#demo-video)
-3. [Contract Addresses](#contract-addresses)
-4. [Screenshots](#screenshots)
-5. [Overview](#overview)
-6. [Architecture](#architecture)
-7. [Smart Contracts](#smart-contracts)
-8. [Inter-Contract Communication](#inter-contract-communication)
-9. [Event Streaming & Real-Time Updates](#event-streaming--real-time-updates)
-10. [Frontend](#frontend)
-11. [Error Handling & Loading States](#error-handling--loading-states)
-12. [CI/CD Pipeline](#cicd-pipeline)
-13. [Deployment Workflow](#deployment-workflow)
-14. [Testing](#testing)
-15. [Getting Started Locally](#getting-started-locally)
-16. [Project Structure](#project-structure)
-17. [Submission Checklist](#submission-checklist)
-
 ---
 
 ## Live Deployed Project Link
@@ -37,7 +13,7 @@
 
 ## Demo Video
 
-**[front-line-truth-pipeline-stellar.netlify.app](https://front-line-truth-pipeline-stellar.netlify.app/)**
+**https://youtu.be/OV6isMMucgg**
 
 ---
 
@@ -392,15 +368,3 @@ Requirements: Node 22+, the [Freighter](https://freighter.app) browser extension
 
 ---
 
-## Submission Checklist
-
-- [ ] Public GitHub repository
-- [x] README with complete documentation (this file)
-- [ ] Minimum 10+ meaningful commits
-- [x] Live demo link — [front-line-truth-pipeline-stellar.netlify.app](https://front-line-truth-pipeline-stellar.netlify.app/)
-- [x] Contract deployment addresses — [listed above](#contract-addresses) with stellar.expert explorer links
-- [ ] Transaction hash for contract interaction — add above
-- [x] Screenshot: mobile responsive UI
-- [x] Screenshot: CI/CD pipeline running
-- [x] Screenshot: test output with 3+ passing tests
-- [ ] Demo video link (1–2 minutes)
