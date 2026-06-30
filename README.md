@@ -37,6 +37,15 @@
 
 ---
 
+
+## PPT Link
+
+**https://docs.google.com/presentation/d/1u7U9Dj0D8sa1ulQeWt4aIo5zt3cP5Oj6/edit?usp=sharing&ouid=108531644168593985103&rtpof=true&sd=true**
+
+---
+
+
+
 ## Screenshots
 
 ### Contract Deployment
@@ -71,6 +80,10 @@
 ### Contract Invoke
 
 <img width="900" alt="contract_invoke" src="https://github.com/user-attachments/assets/60e28c69-b478-45e8-a534-364c85da874e" />
+
+### Event streaming & real-time updates
+<img width="1497" height="267" alt="image" src="https://github.com/user-attachments/assets/de1ae817-b6de-4ffe-b292-615729177e64" />
+
 
 ### Contract Tests
 
