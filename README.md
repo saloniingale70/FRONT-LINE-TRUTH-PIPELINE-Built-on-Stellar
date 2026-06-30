@@ -6,6 +6,22 @@
 
 ---
 
+## Live Demo
+
+****
+
+> Connect a Freighter wallet funded on Stellar Testnet to interact with the live contract.
+
+---
+
+## Demo Video
+
+****
+
+Covers: wallet connection → joining the bank → listing a service → booking → confirming completion.
+
+---
+
 ## Table of Contents
 
 1. [Overview](#overview)
