@@ -4,70 +4,117 @@
 
 **Built on Stellar** · Next.js 14 (App Router) · Soroban Rust Contracts · Freighter Wallet
 
+[![Live Deployed Project ](https://img.shields.io/badge/demo-live-15803d)](https://front-line-truth-pipeline-stellar.netlify.app/)
+[![Network](https://img.shields.io/badge/network-Stellar%20Testnet-14296b)](https://stellar.expert/explorer/testnet)
+
+---
+
+## Table of Contents
+
+1. [Live Demo](#live-demo)
+2. [Demo Video](#demo-video)
+3. [Contract Addresses](#contract-addresses)
+4. [Screenshots](#screenshots)
+5. [Overview](#overview)
+6. [Architecture](#architecture)
+7. [Smart Contracts](#smart-contracts)
+8. [Inter-Contract Communication](#inter-contract-communication)
+9. [Event Streaming & Real-Time Updates](#event-streaming--real-time-updates)
+10. [Frontend](#frontend)
+11. [Error Handling & Loading States](#error-handling--loading-states)
+12. [CI/CD Pipeline](#cicd-pipeline)
+13. [Deployment Workflow](#deployment-workflow)
+14. [Testing](#testing)
+15. [Getting Started Locally](#getting-started-locally)
+16. [Project Structure](#project-structure)
+17. [Submission Checklist](#submission-checklist)
+
 ---
 
 ## Live Deployed Project Link
 
-**https://front-line-truth-pipeline-stellar.netlify.app/**
-
-> Connect a Freighter wallet funded on Stellar Testnet to interact with the live contract.
-
----
-
-## Demo Video Link
-
-****
-
+**[front-line-truth-pipeline-stellar.netlify.app](https://front-line-truth-pipeline-stellar.netlify.app/)**
 
 
 ---
+
+## Demo Video
+
+**[front-line-truth-pipeline-stellar.netlify.app](https://front-line-truth-pipeline-stellar.netlify.app/)**
+
 ---
 
-## 🖼️ Screenshots
+
+
+## Contract Addresses Explorer Link
+
+| Contract | Address | Explorer |
+|---|---|---|
+| **Evidence Registry** (`ComplianceRegistry`) | `CCGIHIUQAZ5XVTKM6MHXJ3KHLIHVHRWLEX2APNEXUMSDBXX6SICXWVN5` | [View on stellar.expert](https://stellar.expert/explorer/testnet/contract/CCGIHIUQAZ5XVTKM6MHXJ3KHLIHVHRWLEX2APNEXUMSDBXX6SICXWVN5) |
+| **Court Approval** (`ShipmentApproval`) | `CBXMV77KVTSHHPRCTEWNEN44TTUER3DF5JQSBWF62SPQMDKTNLPFJJ73` | [View on stellar.expert](https://stellar.expert/explorer/testnet/contract/CBXMV77KVTSHHPRCTEWNEN44TTUER3DF5JQSBWF62SPQMDKTNLPFJJ73) |
+
+
+
+---
+
+
+## Inter-Contract Communication Transaction Hash
+
+**https://stellar.expert/explorer/testnet/tx/e1f69cb070382802129648636d5e6a8cf29f92ffe3c13fc17e4bd7b9c0072a04**
+
+---
+
+## Screenshots
 
 ### Contract Deployment
-1.) Evidence Registry
-<img width="1342" height="282" alt="evidence_registry_deploy" src="https://github.com/user-attachments/assets/3815f9ce-7950-43d5-80d8-68780ebad67f" />
-2.) Court Approval
-<img width="1331" height="372" alt="court_approval_deploy" src="https://github.com/user-attachments/assets/83692d98-fecc-474b-bd1c-bb53deb33fad" />
 
+| Evidence Registry | Court Approval |
+|---|---|
+| <img width="600" alt="evidence_registry_deploy" src="https://github.com/user-attachments/assets/3815f9ce-7950-43d5-80d8-68780ebad67f" /> | <img width="600" alt="court_approval_deploy" src="https://github.com/user-attachments/assets/83692d98-fecc-474b-bd1c-bb53deb33fad" /> |
 
 ### Mobile Responsive View
-<img width="572" height="1280" alt="mobile-1" src="https://github.com/user-attachments/assets/905a4c61-419b-4d65-afda-1eeed7adce7a" />
-<img width="572" height="1280" alt="mobile-2" src="https://github.com/user-attachments/assets/2b1f99ad-7d70-43c9-9a23-4e733240ba2b" />
-<img width="572" height="1280" alt="mobile-3" src="https://github.com/user-attachments/assets/68bc6bd3-00ca-4448-ace0-55316054d33c" />
 
+<p>
+  <img width="260" alt="mobile-1" src="https://github.com/user-attachments/assets/905a4c61-419b-4d65-afda-1eeed7adce7a" />
+  <img width="260" alt="mobile-2" src="https://github.com/user-attachments/assets/2b1f99ad-7d70-43c9-9a23-4e733240ba2b" />
+  <img width="260" alt="mobile-3" src="https://github.com/user-attachments/assets/68bc6bd3-00ca-4448-ace0-55316054d33c" />
+</p>
 
 ### Error Handling & Loading States
-<img width="1917" height="111" alt="error-1" src="https://github.com/user-attachments/assets/59c8be57-5631-4cd8-bd8a-9209139e4f09" />
-<img width="1920" height="1080" alt="error-2" src="https://github.com/user-attachments/assets/ad769f52-f957-4640-ac1b-8c6733cfa18d" />
-<img width="1917" height="967" alt="error-3" src="https://github.com/user-attachments/assets/b0e862a7-d367-43e7-8949-61ad6eff6c95" />
-<img width="1920" height="1080" alt="loading-1" src="https://github.com/user-attachments/assets/8bb6af83-1a9b-4cad-875f-38e4381d00b8" />
-<img width="1920" height="1080" alt="loading-2" src="https://github.com/user-attachments/assets/982b26b2-526f-42b1-935d-9a790d8834da" />
-<img width="1592" height="791" alt="loading-3" src="https://github.com/user-attachments/assets/4090c077-c469-4ce3-9ecc-47cab15c254a" />
 
-
+<p>
+  <img width="600" alt="error-1" src="https://github.com/user-attachments/assets/59c8be57-5631-4cd8-bd8a-9209139e4f09" />
+  <img width="600" alt="error-2" src="https://github.com/user-attachments/assets/ad769f52-f957-4640-ac1b-8c6733cfa18d" />
+</p>
+<p>
+  <img width="600" alt="error-3" src="https://github.com/user-attachments/assets/b0e862a7-d367-43e7-8949-61ad6eff6c95" />
+  <img width="600" alt="loading-1" src="https://github.com/user-attachments/assets/8bb6af83-1a9b-4cad-875f-38e4381d00b8" />
+</p>
+<p>
+  <img width="600" alt="loading-2" src="https://github.com/user-attachments/assets/982b26b2-526f-42b1-935d-9a790d8834da" />
+  <img width="600" alt="loading-3" src="https://github.com/user-attachments/assets/4090c077-c469-4ce3-9ecc-47cab15c254a" />
+</p>
 
 ### Contract Invoke
-<img width="1917" height="827" alt="image" src="https://github.com/user-attachments/assets/60e28c69-b478-45e8-a534-364c85da874e" />
 
+<img width="900" alt="contract_invoke" src="https://github.com/user-attachments/assets/60e28c69-b478-45e8-a534-364c85da874e" />
 
-### Contract Tests & Frontend Tests
-<img width="1202" height="246" alt="contract-test-cases" src="https://github.com/user-attachments/assets/f2cc6193-c7e9-4e88-b087-8cde3d18cf66" />
-<img width="1427" height="257" alt="contract-test-cases-2" src="https://github.com/user-attachments/assets/0daace10-02b7-402f-8ecf-5cb3c56c7796" />
-<img width="1085" height="705" alt="frontend-test-cases" src="https://github.com/user-attachments/assets/d1cfd687-7060-4348-b8ec-55a63921d8ba" />
+### Contract Tests
+
+<p>
+  <img width="600" alt="contract-test-cases" src="https://github.com/user-attachments/assets/f2cc6193-c7e9-4e88-b087-8cde3d18cf66" />
+  <img width="600" alt="contract-test-cases-2" src="https://github.com/user-attachments/assets/0daace10-02b7-402f-8ecf-5cb3c56c7796" />
+</p>
+
+### Frontend Tests
+
+<img width="700" alt="frontend-test-cases" src="https://github.com/user-attachments/assets/d1cfd687-7060-4348-b8ec-55a63921d8ba" />
 
 ### CI/CD Pipeline Running
-<img width="1917" height="737" alt="ci-cd" src="https://github.com/user-attachments/assets/ce509936-4bd1-40b5-9ab9-44a9ee827372" />
 
-
-
-
+<img width="900" alt="ci-cd" src="https://github.com/user-attachments/assets/ce509936-4bd1-40b5-9ab9-44a9ee827372" />
 
 ---
-
-
-
 
 ## Overview
 
@@ -301,7 +348,7 @@ npx jest
 
 Coverage includes: case list rendering and selection, wallet-gated form validation, full submit/sign/send success and failure paths (including signature rejection and on-chain `FAILED` status), and the Court Intake admissible/not-admissible branches — all 14+ tests across 4 suites (`CaseRegistry`, `FieldCaptureForm`, `VerificationDesk`, `CourtIntake`).
 
-> See [Submission Checklist](#submission-checklist) for where to attach your test-output screenshot.
+Test output screenshots are included above under [Contract Tests](#contract-tests) and [Frontend Tests](#frontend-tests).
 
 ---
 
@@ -315,19 +362,6 @@ npm run dev
 ```
 
 Requirements: Node 22+, the [Freighter](https://freighter.app) browser extension set to **Testnet**, and testnet XLM (fund via [Friendbot](https://friendbot.stellar.org)).
-
----
-
-## Deployed Addresses & Demo
-
-| Item | Value |
-|---|---|
-| Network | Stellar Testnet |
-| `ComplianceRegistry` contract | `CCGIHIUQAZ5XVTKM6MHXJ3KHLIHVHRWLEX2APNEXUMSDBXX6SICXWVN5` |
-| `ShipmentApproval` contract | `CBXMV77KVTSHHPRCTEWNEN44TTUER3DF5JQSBWF62SPQMDKTNLPFJJ73` |
-| Live demo | `<add your Netlify/Vercel URL>` |
-| Sample transaction hash | `<add a real on-chain tx hash from a contract interaction>` |
-| Demo video (1–2 min) | `<add link>` |
 
 ---
 
@@ -361,4 +395,15 @@ Requirements: Node 22+, the [Freighter](https://freighter.app) browser extension
 
 ---
 
+## Submission Checklist
 
+- [ ] Public GitHub repository
+- [x] README with complete documentation (this file)
+- [ ] Minimum 10+ meaningful commits
+- [x] Live demo link — [front-line-truth-pipeline-stellar.netlify.app](https://front-line-truth-pipeline-stellar.netlify.app/)
+- [x] Contract deployment addresses — [listed above](#contract-addresses) with stellar.expert explorer links
+- [ ] Transaction hash for contract interaction — add above
+- [x] Screenshot: mobile responsive UI
+- [x] Screenshot: CI/CD pipeline running
+- [x] Screenshot: test output with 3+ passing tests
+- [ ] Demo video link (1–2 minutes)
