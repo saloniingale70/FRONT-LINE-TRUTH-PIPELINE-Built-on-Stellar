@@ -2,10 +2,7 @@
 
 > A Soroban (Stellar smart contract) dApp for logging, verifying, and certifying the chain-of-custody of field evidence — from capture, through compliance verification, to court-admissible intake — fully on-chain.
 
-**Built on Stellar** · Next.js 14 (App Router) · Soroban Rust Contracts · Freighter Wallet
 
-[![Live Deployed Project ](https://img.shields.io/badge/demo-live-15803d)](https://front-line-truth-pipeline-stellar.netlify.app/)
-[![Network](https://img.shields.io/badge/network-Stellar%20Testnet-14296b)](https://stellar.expert/explorer/testnet)
 
 ---
 
