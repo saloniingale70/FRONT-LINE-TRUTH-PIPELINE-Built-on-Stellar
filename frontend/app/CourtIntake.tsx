@@ -48,6 +48,12 @@ function friendlyError(raw: string): string {
   return raw;
 }
 
+function errMessage(err: unknown): string {
+  if (err instanceof Error) return err.message;
+  if (typeof err === "string") return err;
+  return "Something went wrong.";
+}
+
 export default function CourtIntake({
   caseId,
   onResolved,
@@ -148,8 +154,8 @@ export default function CourtIntake({
       setAdmissible(result);
       setStage("done");
       onResolved?.();
-    } catch (err: any) {
-      setErrorMsg(friendlyError(err.message ?? "Something went wrong."));
+    } catch (err: unknown) {
+      setErrorMsg(friendlyError(errMessage(err)));
       setStage("error");
     }
   }

@@ -21,6 +21,12 @@ function friendlyError(raw: string): string {
   return raw;
 }
 
+function errMessage(err: unknown): string {
+  if (err instanceof Error) return err.message;
+  if (typeof err === "string") return err;
+  return "Could not complete this action.";
+}
+
 export default function VerificationDesk({
   caseId, onResolved,
 }: { caseId: string | null; onResolved?: () => void }) {
@@ -83,8 +89,8 @@ export default function VerificationDesk({
           : "Case manually flagged — custody marked broken.",
       });
       onResolved?.();
-    } catch (err: any) {
-      setMessage({ kind: "err", text: friendlyError(err.message ?? "Could not complete this action.") });
+    } catch (err: unknown) {
+      setMessage({ kind: "err", text: friendlyError(errMessage(err)) });
     } finally {
       setBusy(null);
     }
