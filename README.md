@@ -6,40 +6,68 @@
 
 ---
 
-## Live Demo
+## Live Deployed Project Link
 
-****
+**https://front-line-truth-pipeline-stellar.netlify.app/**
 
 > Connect a Freighter wallet funded on Stellar Testnet to interact with the live contract.
 
 ---
 
-## Demo Video
+## Demo Video Link
 
 ****
 
-Covers: wallet connection → joining the bank → listing a service → booking → confirming completion.
+
+
+---
+---
+
+## 🖼️ Screenshots
+
+### Contract Deployment
+1.) Evidence Registry
+<img width="1342" height="282" alt="evidence_registry_deploy" src="https://github.com/user-attachments/assets/3815f9ce-7950-43d5-80d8-68780ebad67f" />
+2.) Court Approval
+<img width="1331" height="372" alt="court_approval_deploy" src="https://github.com/user-attachments/assets/83692d98-fecc-474b-bd1c-bb53deb33fad" />
+
+
+### Mobile Responsive View
+<img width="572" height="1280" alt="mobile-1" src="https://github.com/user-attachments/assets/905a4c61-419b-4d65-afda-1eeed7adce7a" />
+<img width="572" height="1280" alt="mobile-2" src="https://github.com/user-attachments/assets/2b1f99ad-7d70-43c9-9a23-4e733240ba2b" />
+<img width="572" height="1280" alt="mobile-3" src="https://github.com/user-attachments/assets/68bc6bd3-00ca-4448-ace0-55316054d33c" />
+
+
+### Error Handling & Loading States
+<img width="1917" height="111" alt="error-1" src="https://github.com/user-attachments/assets/59c8be57-5631-4cd8-bd8a-9209139e4f09" />
+<img width="1920" height="1080" alt="error-2" src="https://github.com/user-attachments/assets/ad769f52-f957-4640-ac1b-8c6733cfa18d" />
+<img width="1917" height="967" alt="error-3" src="https://github.com/user-attachments/assets/b0e862a7-d367-43e7-8949-61ad6eff6c95" />
+<img width="1920" height="1080" alt="loading-1" src="https://github.com/user-attachments/assets/8bb6af83-1a9b-4cad-875f-38e4381d00b8" />
+<img width="1920" height="1080" alt="loading-2" src="https://github.com/user-attachments/assets/982b26b2-526f-42b1-935d-9a790d8834da" />
+<img width="1592" height="791" alt="loading-3" src="https://github.com/user-attachments/assets/4090c077-c469-4ce3-9ecc-47cab15c254a" />
+
+
+
+### Contract Invoke
+<img width="1917" height="827" alt="image" src="https://github.com/user-attachments/assets/60e28c69-b478-45e8-a534-364c85da874e" />
+
+
+### Contract Tests & Frontend Tests
+<img width="1202" height="246" alt="contract-test-cases" src="https://github.com/user-attachments/assets/f2cc6193-c7e9-4e88-b087-8cde3d18cf66" />
+<img width="1427" height="257" alt="contract-test-cases-2" src="https://github.com/user-attachments/assets/0daace10-02b7-402f-8ecf-5cb3c56c7796" />
+<img width="1085" height="705" alt="frontend-test-cases" src="https://github.com/user-attachments/assets/d1cfd687-7060-4348-b8ec-55a63921d8ba" />
+
+### CI/CD Pipeline Running
+<img width="1917" height="737" alt="ci-cd" src="https://github.com/user-attachments/assets/ce509936-4bd1-40b5-9ab9-44a9ee827372" />
+
+
+
+
 
 ---
 
-## Table of Contents
 
-1. [Overview](#overview)
-2. [Architecture](#architecture)
-3. [Smart Contracts](#smart-contracts)
-4. [Inter-Contract Communication](#inter-contract-communication)
-5. [Event Streaming & Real-Time Updates](#event-streaming--real-time-updates)
-6. [Frontend](#frontend)
-7. [Error Handling & Loading States](#error-handling--loading-states)
-8. [CI/CD Pipeline](#cicd-pipeline)
-9. [Deployment Workflow](#deployment-workflow)
-10. [Testing](#testing)
-11. [Getting Started Locally](#getting-started-locally)
-12. [Deployed Addresses & Demo](#deployed-addresses--demo)
-13. [Project Structure](#project-structure)
-14. [Submission Checklist](#submission-checklist)
 
----
 
 ## Overview
 
@@ -333,15 +361,4 @@ Requirements: Node 22+, the [Freighter](https://freighter.app) browser extension
 
 ---
 
-## Submission Checklist
 
-- [ ] Public GitHub repository
-- [x] README with complete documentation (this file)
-- [ ] Minimum 10+ meaningful commits
-- [ ] Live demo link (Vercel/Netlify) — add above
-- [x] Contract deployment addresses — listed above
-- [ ] Transaction hash for a real contract interaction — add above
-- [ ] Screenshot: mobile responsive UI
-- [ ] Screenshot: CI/CD pipeline running (GitHub Actions tab)
-- [ ] Screenshot: test output with 3+ passing tests (`cargo test` and/or `npx jest`)
-- [ ] Demo video link (1–2 minutes)
