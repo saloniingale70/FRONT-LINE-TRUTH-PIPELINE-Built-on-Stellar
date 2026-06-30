@@ -8,12 +8,16 @@ on:
 
 env:
   NODE_VERSION: "20"
+  WORKING_DIR: frontend
 
 jobs:
   # ── 1. Lint & Type-check ──────────────────────────────────────────────────
   lint:
     name: Lint & Type Check
     runs-on: ubuntu-latest
+    defaults:
+      run:
+        working-directory: ${{ env.WORKING_DIR }}
     steps:
       - name: Checkout code
         uses: actions/checkout@v4
@@ -23,6 +27,7 @@ jobs:
         with:
           node-version: ${{ env.NODE_VERSION }}
           cache: "npm"
+          cache-dependency-path: ${{ env.WORKING_DIR }}/package-lock.json
 
       - name: Install dependencies
         run: npm ci
@@ -38,6 +43,9 @@ jobs:
     name: Build Next.js App
     runs-on: ubuntu-latest
     needs: lint
+    defaults:
+      run:
+        working-directory: ${{ env.WORKING_DIR }}
     steps:
       - name: Checkout code
         uses: actions/checkout@v4
@@ -47,6 +55,7 @@ jobs:
         with:
           node-version: ${{ env.NODE_VERSION }}
           cache: "npm"
+          cache-dependency-path: ${{ env.WORKING_DIR }}/package-lock.json
 
       - name: Install dependencies
         run: npm ci
@@ -54,14 +63,15 @@ jobs:
       - name: Build application
         run: npm run build
         env:
-          # Add any public env vars your Next.js app needs at build time here
+          NEXT_TELEMETRY_DISABLED: 1
+          # Add any NEXT_PUBLIC_* build-time vars here, e.g.:
           # NEXT_PUBLIC_STELLAR_NETWORK: testnet
 
       - name: Upload build artifact
         uses: actions/upload-artifact@v4
         with:
           name: nextjs-build
-          path: .next/
+          path: ${{ env.WORKING_DIR }}/.next/
           retention-days: 1
 
   # ── 3. Deploy to Netlify (main branch only) ───────────────────────────────
@@ -70,9 +80,14 @@ jobs:
     runs-on: ubuntu-latest
     needs: build
     if: github.ref == 'refs/heads/main' && github.event_name == 'push'
+    defaults:
+      run:
+        working-directory: ${{ env.WORKING_DIR }}
     environment:
       name: production
       url: ${{ steps.netlify-deploy.outputs.deploy-url }}
+    outputs:
+      site-url: ${{ steps.netlify-deploy.outputs.site-url }}
     steps:
       - name: Checkout code
         uses: actions/checkout@v4
@@ -82,22 +97,29 @@ jobs:
         with:
           node-version: ${{ env.NODE_VERSION }}
           cache: "npm"
+          cache-dependency-path: ${{ env.WORKING_DIR }}/package-lock.json
 
       - name: Install dependencies
         run: npm ci
 
-      - name: Build application
-        run: npm run build
-
       - name: Install Netlify CLI
         run: npm install -g netlify-cli
 
+      # Uses `netlify.toml` in frontend/ to determine build command + publish
+      # dir + the @netlify/plugin-nextjs runtime. Do NOT pass --dir here —
+      # let Netlify build it via the plugin so SSR/API routes keep working.
       - name: Deploy to Netlify
         id: netlify-deploy
         run: |
-          OUTPUT=$(netlify deploy --prod --dir=.next --site=${{ secrets.NETLIFY_SITE_ID }} --auth=${{ secrets.NETLIFY_AUTH_TOKEN }} --json)
-          echo "deploy-url=$(echo $OUTPUT | jq -r '.deploy_url')" >> $GITHUB_OUTPUT
-          echo "site-url=$(echo $OUTPUT | jq -r '.url')" >> $GITHUB_OUTPUT
+          OUTPUT=$(netlify deploy --build --prod \
+            --site="$NETLIFY_SITE_ID" \
+            --auth="$NETLIFY_AUTH_TOKEN" \
+            --json)
+          echo "deploy-url=$(echo "$OUTPUT" | jq -r '.deploy_url')" >> "$GITHUB_OUTPUT"
+          echo "site-url=$(echo "$OUTPUT" | jq -r '.url')" >> "$GITHUB_OUTPUT"
+        env:
+          NETLIFY_SITE_ID: ${{ secrets.NETLIFY_SITE_ID }}
+          NETLIFY_AUTH_TOKEN: ${{ secrets.NETLIFY_AUTH_TOKEN }}
 
       - name: Comment deploy URL on PR
         if: github.event_name == 'pull_request'
@@ -116,7 +138,7 @@ jobs:
     name: Lighthouse Audit
     runs-on: ubuntu-latest
     needs: deploy
-    if: github.ref == 'refs/heads/main' && github.event_name == 'push'
+    if: github.ref == 'refs/heads/main' && github.event_name == 'push' && needs.deploy.outputs.site-url != ''
     steps:
       - name: Checkout code
         uses: actions/checkout@v4
